@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<link href="bootstrap/bootstrap.min.css" rel="stylesheet">
+<meta charset="utf-8">
+<title>layui</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="layui/global.css" />
+
+<link id="layuicss-skincodecss" rel="stylesheet" href="layui/code.css" />
+<link id="layuicss-layer" rel="stylesheet" href="layui/layer.css" />
+<link id="layuicss-laydate" rel="stylesheet" href="layui/laydate.css" />
+
+<link href="bootstrap/bootstrap.min.css" rel="stylesheet" />
+<script type="text/javascript" src="jquery/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="vue/vue.min.js"></script>
+<script src="layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/loginPermission.js" charset="utf-8"></script>
+<link href="layui/layui.css" rel="stylesheet">
+
+
+<script type="text/javascript" src="js/ProductInfo.js"></script>
+<style type="text/css">
+#select {
+	margin-left: 10px;
+	padding-left: 10px;
+	width: 200px;
+	max-height: 2000px;
+	border-collapse: collapse;
+}
+
+#outOfInfo2 {
+	position: relative;
+	width: 60em;
+	left: 20%;
+}
+
+.layui-table th {
+	text-align: left;
+	font-weight: 500;
+}
+
+.layui-table td {
+	text-align: left;
+}
+
+.header__window--logo {
+	margin-left: 50px;
+	margin-top: 40px;
+}
+</style>
+<script type="text/javascript">
+	function dataConvert() {
+
+		var transTime = new Date(v1.$data.infoLists.begTime);
+		var transTime2 = new Date(v1.$data.infoLists.endTime);
+		var transTime3 = new Date(v1.$data.infoLists.apTime);
+		var transTime4 = new Date(v1.$data.infoLists.aTime);
+		var transTime5 = new Date(v1.$data.infoLists.eExpiry);
+
+		v1.$data.infoLists.begTime = transTime.toLocaleDateString();
+		v1.$data.infoLists.endTime = transTime2.toLocaleDateString();
+		v1.$data.infoLists.apTime = transTime3.toLocaleDateString();
+		v1.$data.infoLists.aTime = transTime4.toLocaleDateString();
+		v1.$data.infoLists.eExpiry = transTime5.toLocaleDateString();
+
+	}
+	var v1;
+	$(document).ready(function() {
+		//isLogin();
+
+		getBydetail();
+
+		v1 = new Vue({
+			el : '#info2',
+			data : {
+				imgUrl:'',
+				isSure : false,
+				infoLists:[],
+				jtpInfo : {
+					leaveId : '',
+					jtpUserId : '',
+					jtpUserName : '',
+					jtpUserEname : '',
+					leaveType : '',
+					apTime : '',
+					ccList : '',
+					begTime : '',
+					endTime : '',
+					duration : '',
+					apReason : '',
+					imgAttach : '',
+					oAttach : '',
+					isItPay : '',
+					deputeAo : '',
+					ao : '',
+					aTime : '',
+					apStatue : '',
+					aContent : '',
+					aSource : '',
+					aEmail : '',
+					eExpiry : '',
+					paydays : '',
+				},
+			},
+
+			methods : {
+				convertType:function(dd){
+					if(dd=="1"){
+						return'Pleading leave';
+					}
+                    if(dd=="2"){
+						return 'casual leave ';
+					}
+                    if(dd=="3"){
+                    	return 'Marriage leave';
+					}
+                    if(dd=="4"){
+                    	return 'maternity leave ';
+					}
+                    if(dd=="5"){
+                    	return 'Paternity leave ';
+					}
+                    if(dd=="6"){
+                    	return 'sick leave';
+					}
+                    
+					
+				},
+				convertSta2:function (dd) {
+					if (dd == "10") {						
+						return 'Approval Pending';
+					}
+					if (dd == "0") {
+						return 'Ready To Send';
+					}
+					if (dd == "11") {
+						return 'Retry';
+					}
+					if (dd == "2") {
+						
+						return 'Approve';
+					}
+					if (dd == "3") {
+						
+						return 'Reject';
+					}
+					if (dd == "4") {
+						
+						return 'OverTime';
+					}
+					if (dd == "5") {
+						return 'Cancel';
+					}
+					
+
+				},
+				
+				checkImg:function(path){
+					var url='img/'+path;
+					return url;
+					
+				},
+				checkDoc:function(path){
+					var url='E:/image/'+path;
+					return url;
+					
+				},
+				
+				
+				reject : function() {
+					this.isSure = true;
+				},
+				close1 : function() {
+					this.isAdd = false;
+				},
+
+				reject1 : function() {
+					var idJson = {
+						"id" : v1.$data.infoLists.leaveId,
+						"content" : $("#_input0").val()
+					};
+					$.ajax({
+						data : idJson,
+						type : "post",
+						url : "refuseOne.do",
+						cache : false,
+						async : false,
+						dataType : "json",
+						success : function(response) {
+							if (response === 'success') {
+								console.log("success");
+								v1.checkAlll();
+								close1();
+							} else {
+								console.log("wrong");
+							}
+
+						}
+
+					});
+					url2 = "refuseOneSend.do";
+					$.post(url2, idJson, function(data) {
+						if (data === 'success') {
+							console.log("success");
+						} else {
+							console.log("wrong");
+						}
+					});
+					location.href="grade.html";
+				},
+				returnGrade:function(){
+					location.href="grade.html";
+				},
+				approve1 : function() {
+					var idJson = {
+						"id" : v1.$data.infoLists.leaveId,
+						"content" : ""
+					};
+
+					$.ajax({
+						data : idJson,
+
+						type : "post",
+
+						url : "agreeOne.do",
+
+						cache : false,
+
+						async : false,
+
+						dataType : "json",
+
+						success : function(response) {
+							if (response === 'success') {
+								console.log("success");
+								v1.checkAlll();
+								close1();
+							} else {
+								console.log("wrong");
+							}
+
+						}
+					
+
+					});
+					url2 = "agreeOneSend.do";
+					$.post(url2, idJson, function(data) {
+						if (data === 'success') {
+							console.log("success");
+						} else {
+							console.log("wrong");
+						}
+					});
+					location.href="grade.html";
+				},
+
+			},
+		}
+
+		)
+
+		function getBydetail() {
+			var url = "getDetailByno.do";
+
+			$.get(url, null, function(data) {
+				console.log("+++++++++++++123++++++++++++++++");
+				console.log(data);
+				console.log("大威法网法网法网发");
+				v1.$data.infoLists = data;
+				//dataConvert();
+				console.log("我发发哇发我")
+				console.log(v1.$data.infoLists);
+			}, "json")
+		}
+	})
+</script>
+</head>
+<body>
+	<div class="header__window--top">
+		<div class="header__window--logo">
+			<a href="https://www.capgemini.com/" class="header__logo"><img
+				src="https://www.capgemini.com/wp-content/themes/capgemini-2018-02/assets/images/logo.svg"></a>
+		</div>
+	</div>
+	<div id="outOfInfo2">
+		<div id="info2">
+			<form>
+				<fieldset class="layui-elem-field layui-field-title"
+					style="margin-top: 50px;">
+					<legend>
+						Leaving Application Detail Information<span
+							style="margin-left: 400px; font-size: small">Number： <label>{{infoLists.leaveId}}</label></span>
+					</legend>
+				</fieldset>
+				<table class="layui-table" lay-even="" lay-skin="nob">
+					<colgroup>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+					</colgroup>
+					<tbody>
+						<tr style="background-color: #1C5C9D; color: white;">
+							<th colspan="3">UserID：</th>
+							<td colspan="7"><label>{{infoLists.jtpUserId}}</label></td>
+							<th colspan="3">Approved Time：</th>
+							<td colspan="7"><label>{{infoLists.apTime}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">User Name：</th>
+							<td colspan="7"><label>{{infoLists.jtpUserName}}</label></td>
+							<th colspan="3">English Name：</th>
+							<td colspan="7"><label>{{infoLists.jtpUserEname}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">Leaving Type：</th>
+							<td colspan="7"><label>{{convertType(infoLists.leaveType)}}</label></td>
+							<th colspan="3">Duration：</th>
+							<td colspan="7"><label>{{infoLists.duration}}</label></td>、
+                       </tr>
+						<tr>
+							<th colspan="3">Whether Or Not Paid：</th>
+							<td colspan="7"><label>{{infoLists.isItPay}}</label></td>
+							<th colspan="3">Days With Pay：</th>
+							<td colspan="7"><label>{{infoLists.paydays}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">Beginning Time：</th>
+							<td colspan="7"><label>{{infoLists.begTime}}</label></td>
+							<th colspan="3">Ending Time:</th>
+							<td colspan="7"><label>{{infoLists.endTime}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">Reason For Application：</th>
+							<td colspan="17"><label>{{infoLists.apReason}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">Approved Status：</th>
+							<td colspan="7"><label>{{convertSta2(infoLists.apStatue)}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">Approved Concent：</th>
+							<td colspan="17"><label>{{infoLists.aContent}}</label></td>
+						</tr>
+						<tr>
+							<th colspan="3">Attached Picture：</th>
+							<td colspan="17"><a v-bind:href="checkImg(infoLists.imgAttach)">Check Photography</a></td>
+						</tr>
+						<tr>
+							<th colspan="3">Other Attached Files：</th>
+							<td colspan="17"><a v-bind:href="checkDoc(infoLists.oAttach)">Check Document</a></td>
+						</tr>
+						<tr>
+							<td colspan="20" style="text-align: right">
+								<button type="button" class="layui-btn"
+									style="background-color: #34898A" data-toggle="modal"
+									data-target="#myModal4">Agree</button>
+								<button type="button" class="layui-btn layui-btn-danger"
+									style="background-color: #E62F39" data-toggle="modal"
+									data-target="#myModal3">Reject</button>
+									<button type="button" v-on:click="returnGrade()" class="layui-btn"
+									style="background-color: #34898A" >return</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</form>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal4" tabindex="-1" role="dialog"
+				aria-labelledby="myModalLabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="myModalLabel">agree</h4>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="inputBai3" class="col-sm-4 control-label">
+									<h3>Consent to leave?</h3>
+								</label></label>
+								<div class="col-sm-6"></div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-primary"
+								v-on:click="approve1()" data-dismiss="modal">Submit</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal3" tabindex="-1" role="dialog"
+				aria-labelledby="myModalLabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="myModalLabel">reject</h4>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="inputBai3" class="col-sm-12 control-label"><h3>Please
+										enter the reason for refusal.</h3></label>
+								<div class="col-sm-6">
+									<div>
+
+										<textarea id="_input0" name="content" rows="3" cols="42"
+											onpropertychange="if(this.scrollHeight>80) this.style.posHeight=this.scrollHeight+5"
+											onKeyDown="textdown(event)" onKeyUp="textup()"
+											onfocus="if(value=='Click here to input the reason for refusal.'){value=''}"
+											onblur="if (value ==''){value='Click here to input the reason for refusal.'}">  </textarea>
+										<select id="select" onchange="select()">
+											<option value="" selected="true" disabled="true">Common
+												replies</option>
+											<option value="1">The application time is too long.
+												After consideration, the application for leave is rejected.
+												You could reapply after shortening the application time.</option>
+											<option value="2">The application reason is not
+												sufficient, please apply again after completing the
+												application reason.</option>
+											<option value="3">The reason for application is
+												unreasonable. After consideration, the application for leave
+												is rejected.</option>
+											<option value="4">The attachment for application is
+												not sufficient. Please apply again after completing the
+												information.</option>
+											<option value="5">The attached picture is not clear.
+												Please resubmit the application after uploading the clear
+												picture.</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-primary"
+								v-on:click="reject1()" data-dismiss="modal">Submit</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+		</div>
+	</div>
+
+
+
+
+
+
+
+	<script src="layui/layui.js" charset="utf-8"></script>
+	<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+	<script>
+		function select() {
+			$('#_input0').val($('#select option:selected').text());
+		}
+		layui
+				.use(
+						[ 'form', 'layedit', 'laydate' ],
+						function() {
+							var form = layui.form, layer = layui.layer, layedit = layui.layedit, laydate = layui.laydate;
+
+							//日期
+							laydate.render({
+								elem : '#date2',
+								type : 'datetime',
+								done : function(value, date, endDate) {
+									$('#date2').change();
+									v1.$data.jtpInfo.endTime = value;
+								}
+							});
+							laydate.render({
+								elem : '#date1',
+								type : 'datetime',
+								done : function(value, date, endDate) {
+
+									$('#date1').change();
+									v1.$data.jtpInfo.begTime = value;
+								}
+
+							});
+
+							//创建一个编辑器
+							var editIndex = layedit.build('LAY_demo_editor');
+
+							//自定义验证规则
+							form.verify({
+								title : function(value) {
+									if (value.length < 5) {
+										return '标题至少得5个字符啊';
+									}
+								},
+								pass : [ /(.+){6,12}$/, '密码必须6到12位' ],
+								content : function(value) {
+									layedit.sync(editIndex);
+								}
+							});
+
+							//监听指定开关
+							form.on('switch(switchTest)', function(data) {
+								layer.msg('开关checked：'
+										+ (this.checked ? 'true' : 'false'), {
+									offset : '6px'
+								});
+								layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF',
+										data.othis)
+							});
+
+							//监听提交
+							form.on('submit(demo1)', function(data) {
+								layer.alert(JSON.stringify(data.field), {
+									title : '最终的提交信息'
+								})
+								return false;
+							});
+
+							//表单初始赋值
+							form.val('example', {
+								"username" : "贤心" // "name": "value"
+								,
+								"password" : "123456",
+								"interest" : 1,
+								"like[write]" : true //复选框选中状态
+								,
+								"close" : true //开关状态
+								,
+								"sex" : "女",
+								"desc" : "我爱 layui"
+							})
+
+						});
+	</script>
+
+</body>
+</html>
